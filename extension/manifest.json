@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Slack Chrome Bridge",
+  "version": "1.0.0",
+  "description": "Read-only Slack search, threads, history and files from the command line, using the Slack Web session already open in Chrome.",
+  "permissions": ["nativeMessaging", "scripting", "storage"],
+  "host_permissions": ["https://app.slack.com/*", "https://files.slack.com/*", "https://*.slack.com/*"],
+  "background": {"service_worker": "worker.js", "type": "module"},
+  "action": {"default_title": "Link the Slack workspace of this tab"}
+}
