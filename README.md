@@ -51,11 +51,27 @@ This tool takes a third way: it asks your browser tab to make the request. Slack
 
 ## How it works
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant CLI as Terminal<br/>slack-chrome-bridge
+    participant Bridge as Local bridge<br/>(started by Chrome)
+    participant Ext as Chrome extension
+    participant Tab as Slack Web tab
+    participant Slack as Slack API
+
+    CLI->>Bridge: request (private named pipe)
+    Bridge->>Ext: Native Messaging
+    Ext->>Ext: check against read-only allow-list
+    Ext->>Tab: inject the API call
+    Tab->>Slack: fetch(api/…) with your session
+    Slack-->>Tab: JSON
+    Tab-->>Ext: JSON, token removed
+    Ext-->>Bridge: JSON
+    Bridge-->>CLI: JSON on stdout
 ```
-terminal                  local bridge               Chrome extension            Slack Web tab
-slack-chrome-bridge ──▶  named pipe (0600)  ──▶     Native Messaging   ──▶     fetch(api/…)
-     ◀── JSON ──────────────────◀────────────────────────◀──────────────────── with your session
-```
+
+Your session token stays in the Slack tab (steps 4 to 7). The terminal, the bridge and the disk never see it.
 
 1. The command writes a request (operation + parameters) to a named pipe in a directory only your account can access.
 2. The bridge, started by Chrome through [Native Messaging](https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging), forwards it to the extension. Only this extension is allowed to start the bridge.
