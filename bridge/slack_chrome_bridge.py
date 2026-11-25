@@ -253,7 +253,26 @@ def doctor(browser="chrome"):
     checks = []
     manifest = host_dir(browser) / f"{HOST_NAME}.json"
     checks.append({"check": "native host manifest", "ok": manifest.exists(), "path": str(manifest),
-                   "fix": None if manifest.exists() else "Run: install <EXTENSION_ID>"})
+                   "fix": None if manifest.exists() else "Run ./install.sh"})
+    if manifest.exists():
+        try:
+            data = json.loads(manifest.read_text(encoding="utf-8"))
+            origins = data.get("allowed_origins") or []
+            registered = origins[0].split("//")[1].strip("/") if origins else ""
+            expected = unpacked_extension_id(default_extension_dir())
+            checks.append({
+                "check": "registered extension ID", "ok": registered == expected,
+                "registered": registered, "expected_for_this_folder": expected,
+                "fix": None if registered == expected else
+                "If chrome://extensions shows another ID, run: install <THAT_ID>. Otherwise run ./install.sh again.",
+            })
+            launcher = Path(data.get("path", ""))
+            interpreter = shlex.split(launcher.read_text(encoding="utf-8").splitlines()[1])[1] if launcher.exists() else ""
+            checks.append({"check": "bridge launcher and Python", "ok": launcher.exists() and Path(interpreter).exists(),
+                           "python": interpreter,
+                           "fix": None if launcher.exists() and Path(interpreter).exists() else "Run ./install.sh again"})
+        except (OSError, ValueError, IndexError) as error:
+            checks.append({"check": "native host manifest content", "ok": False, "fix": f"Run ./install.sh again ({error})"})
     try:
         request_path()
         pipe_ok = (RUNTIME_DIR / "requests").exists()

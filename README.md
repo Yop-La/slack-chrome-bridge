@@ -41,7 +41,13 @@ slack-chrome-bridge doctor
 slack-chrome-bridge search 'hello' --count 3
 ```
 
-Requirements: macOS, Chrome (or Brave, Edge, Chromium) with Developer mode allowed, Python 3.9+ (preinstalled with the Xcode command line tools), and a Slack account signed in to Slack Web. Using another browser? Run `install.sh brave` (or `edge`, `chromium`, `chrome-beta`).
+Requirements: macOS, Chrome (or Brave, Edge, Chromium) with Developer mode allowed, Python 3.9+, and a Slack account signed in to Slack Web. Using another browser? Run `install.sh brave` (or `edge`, `chromium`, `chrome-beta`).
+
+> **No Python yet?** Run `xcode-select --install` once, then `install.sh`. Apple's Python 3.9 is enough, there is nothing else to install.
+>
+> **Keep the folder where it is.** Chrome loads the extension from it, and its ID is computed from its path. If you move it, run `install.sh` again and reload the extension.
+>
+> **Command not found?** `install.sh` puts `slack-chrome-bridge` in `~/.local/bin` and tells you how to add it to your PATH if needed.
 
 ## Why
 
@@ -185,6 +191,8 @@ Run `slack-chrome-bridge doctor` first. Common errors:
 |---|---|---|
 | `Chrome bridge unavailable` | The bridge is not running | Open Slack Web and click the extension icon |
 | `Specified native messaging host not found` (in the extension's console) | Bridge not registered, or registered for another extension ID | Run `./install.sh` again (or `install <ID shown in chrome://extensions>`), then reload the extension |
+| `doctor`: `registered extension ID` is KO | The extension was loaded from another folder | Run `./install.sh` from the folder you loaded, or `install <ID shown in chrome://extensions>` |
+| Nothing happens after `install.sh` on a fresh Mac | Python was missing | Run `xcode-select --install`, then `./install.sh` again |
 | `workspace_not_linked` | No workspace linked yet | Click the extension icon in your Slack tab |
 | `slack_tab_missing` | No tab open on the linked workspace | Open it in the same Chrome profile |
 | `session_not_found` | Signed out, or Slack changed where it stores its session | Sign in to Slack Web again. If it persists, open an issue |
